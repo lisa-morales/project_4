@@ -32,6 +32,21 @@ st.header('Histogram of `days_listed` vs `type`')
 fig = px.histogram(df, x='days_listed', color='type')
 st.write(fig)
 
+
+
+########### CAR PRICE VS MILEAGE ###########
+# Replavce NaN/null values in odometer value 0
+df['odometer'] = df['odometer'].fillna(0)
+# Replace 0 values in odometer with the median based on model_year and model
+odometer_median = df.groupby(['model_year'])['odometer'].transform('median')
+df['odometer'] = df['odometer'].mask((df['odometer'].isna()) | (df['odometer'] == 0), odometer_median)
+# Convert odometer to int with no decimal places
+df['odometer'] = pd.to_numeric(df['odometer'], errors='coerce').fillna(0).astype(int)
+st.header('Car price vs mileage')
+# create a scatter plot with plotly express
+fig = px.scatter(df, x='odometer', y='price')
+st.plotly_chart(fig)
+
 ########## COMPARE DISTRIBUTION OF PAINT_COLOR BY MODEL_YEAR ##########
 # Replace NaN in model_year with the median model_year for each model
 df['model_year'] = df['model_year'].fillna(
