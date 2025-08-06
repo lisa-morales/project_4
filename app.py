@@ -4,42 +4,65 @@ import plotly.express as px
 
 df = pd.read_csv('vehicles_us.csv')
 df['manufacturer'] = df['model'].apply(lambda x: x.split()[0])
- 
+
+# Set the title of the app
+st.set_page_config(page_title='Vehicle Data Analysis', layout='wide')
+# Add a title to the app
+st.title('Vehicle Data Analysis')
 # create a text header above the dataframe
 st.header('Data viewer') 
-# Streamlit display code
-st.title('Vehicle Data Analysis')
+
+# Add a checkbox to filter manufacturers with less than 1000 ads 
+show_manuf_1k_ads = st.checkbox('Include manufacturers with less than 1000 ads')
+if not show_manuf_1k_ads:
+    df = df.groupby('manufacturer').filter(lambda x: len(x) > 1000)
 # display the dataframe with streamlit
 st.dataframe(df)
 
-st.header('Vehicle types by manufacturer')
+
+########## VEHICLE PRICE BY TYPE ###########
+st.header('Vehicle price by type')
 # create a plotly histogram figure
-fig = px.histogram(df, x='manufacturer', color='type')
+fig = px.histogram(df, x='price', color='type')
 # display the figure with streamlit
 st.write(fig)
 
-st.header('Histogram of `condition` vs `model_year`')
-fig = px.histogram(df, x='model_year', color='condition')
+############ DAYS LISTED BY TYPE #############
+st.header('Histogram of `days_listed` vs `type`')
+fig = px.histogram(df, x='days_listed', color='type')
 st.write(fig)
 
-##########
-st.header('Compare price distribution between manufacturers')
+########## COMPARE DISTRIBUTION OF PAINT_COLOR BY MODEL_YEAR ##########
+# Replace NaN in model_year with the median model_year for each model
+df['model_year'] = df['model_year'].fillna(
+    df.groupby('model')['model_year'].transform('median')
+)
+# Fill any remaining NaN in model_year with overall median before converting to int
+df['model_year'] = df['model_year'].fillna(df['model_year'].median())
+df['model_year'] = pd.to_numeric(df['model_year'], errors='coerce').astype(int)
+
+# Change NaN values in paint_color to 'unknown'
+df['paint_color'] = df['paint_color'].fillna('unknown')
+
+
+# create a plotly histogram figure
+st.header('Compare distribution OF paint color by year')
 # get a list of car manufacturers
-manufac_list = sorted(df['manufacturer'].unique())
+colors = sorted(df['paint_color'].unique())
 # get user's inputs from a dropdown menu
-manufacturer_1 = st.selectbox(
-                              label='Select manufacturer 1', # title of the select box
-                              options=manufac_list, # options listed in the select box
-                              index=manufac_list.index('chevrolet') # default pre-selected option
+color_1 = st.selectbox(
+                              label='Select Color 1', # title of the select box
+                              options=colors, # options listed in the select box
+                              index=colors.index('red') # default pre-selected option
                               )
 # repeat for the second dropdown menu
-manufacturer_2 = st.selectbox(
-                              label='Select manufacturer 2',
-                              options=manufac_list, 
-                              index=manufac_list.index('hyundai')
+color_2 = st.selectbox(
+                              label='Select Color 2',
+                              options=colors, 
+                              index=colors.index('black')
                               )
 # filter the dataframe 
-mask_filter = (df['manufacturer'] == manufacturer_1) | (df['manufacturer'] == manufacturer_2)
+mask_filter = (df['paint_color'] == color_1) | (df['paint_color'] == color_2)
 df_filtered = df[mask_filter]
 
 # add a checkbox if a user wants to normalize the histogram
@@ -51,9 +74,9 @@ else:
 
 # create a plotly histogram figure
 fig = px.histogram(df_filtered,
-                      x='price',
+                      x='model_year',
                       nbins=30,
-                      color='manufacturer',
+                      color='paint_color',
                       histnorm=histnorm,
                       barmode='overlay')
 # display the figure with streamlit
