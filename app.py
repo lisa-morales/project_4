@@ -34,7 +34,7 @@ st.write(fig)
 
 
 
-########### CAR PRICE VS MILEAGE ###########
+########### CAR PRICE VS MILEAGE SCATTER PLOT ###########
 # Replavce NaN/null values in odometer value 0
 df['odometer'] = df['odometer'].fillna(0)
 # Replace 0 values in odometer with the median based on model_year and model
@@ -44,8 +44,11 @@ df['odometer'] = df['odometer'].mask((df['odometer'].isna()) | (df['odometer'] =
 df['odometer'] = pd.to_numeric(df['odometer'], errors='coerce').fillna(0).astype(int)
 st.header('Car price vs mileage')
 # create a scatter plot with plotly express
-fig = px.scatter(df, x='odometer', y='price')
+fig = px.scatter(df, x='odometer', y='price',
+                 color='type',
+                 color_discrete_sequence=px.colors.qualitative.Dark24)
 st.plotly_chart(fig)
+
 
 ########## COMPARE DISTRIBUTION OF PAINT_COLOR BY MODEL_YEAR ##########
 # Replace NaN in model_year with the median model_year for each model
@@ -61,7 +64,7 @@ df['paint_color'] = df['paint_color'].fillna('unknown')
 
 
 # create a plotly histogram figure
-st.header('Compare distribution OF paint color by year')
+st.header('Compare distribution of Paint Color by Model Year')
 # get a list of car manufacturers
 colors = sorted(df['paint_color'].unique())
 # get user's inputs from a dropdown menu
