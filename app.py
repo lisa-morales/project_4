@@ -10,7 +10,7 @@ st.set_page_config(page_title='Vehicle Data Analysis', layout='wide')
 # Add a title to the app
 st.title('Vehicle Data Analysis')
 # create a text header above the dataframe
-st.header('Data viewer') 
+st.header('Data Viewer') 
 
 # Add a checkbox to filter manufacturers with less than 1000 ads 
 show_manuf_1k_ads = st.checkbox('Include manufacturers with less than 1000 ads')
@@ -21,7 +21,7 @@ st.dataframe(df)
 
 
 ########## VEHICLE PRICE BY TYPE ###########
-st.header('Vehicle price by type')
+st.header('Vehicle Price by Type')
 # create a plotly histogram figure
 fig = px.histogram(df, x='price', color='type')
 # display the figure with streamlit
@@ -42,7 +42,7 @@ odometer_median = df.groupby(['model_year'])['odometer'].transform('median')
 df['odometer'] = df['odometer'].mask((df['odometer'].isna()) | (df['odometer'] == 0), odometer_median)
 # Convert odometer to int with no decimal places
 df['odometer'] = pd.to_numeric(df['odometer'], errors='coerce').fillna(0).astype(int)
-st.header('Car price vs mileage')
+st.header('Vehicle Price vs mileage')
 # create a scatter plot with plotly express
 fig = px.scatter(df, x='odometer', y='price',
                  color='type',
@@ -64,7 +64,7 @@ df['paint_color'] = df['paint_color'].fillna('unknown')
 
 
 # create a plotly histogram figure
-st.header('Compare distribution of Paint Color by Model Year')
+st.header('Compare Distribution of Paint Color by Model Year')
 # get a list of car manufacturers
 colors = sorted(df['paint_color'].unique())
 # get user's inputs from a dropdown menu
